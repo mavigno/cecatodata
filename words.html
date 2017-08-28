@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+		<script src="d3.layout.cloud.js" charset="utf-8"></script>
+		
+	</head>
+<body>
+	<script type="text/javascript">
+	  var fill = d3.scale.category20();
+	  var scale;
+	  var arquivo; var arquivo2;
+	  d3.csv("palavras-posts.csv",function(error,palavras) {
+		  maxdomain = d3.max(palavras,function(d) { 
+			  return d.frequency; 
+		  });
+		  console.log(maxdomain);
+		  scale = d3.scale.log().domain([1,310000]).range([10,80]);
+		  arquivo = palavras;
+	    var cloud = d3.layout.cloud()
+	        .words(arquivo)
+	        .fontSize(function(d) { 
+				//console.log(scale(d.frequency));
+				return scale(d.frequency); 
+			})
+			.padding(5)
+		    .rotate(function() { return ~~(Math.random() * 2) * 90; })
+		    .font("Impact")
+			.on("end", draw)
+			.start();
+	    // Use layout here…
+	  });
+
+	  function draw(words) {
+	    d3.select("body").append("svg")
+	        .attr("width", 800)
+	        .attr("height", 600)
+	      .append("g")
+	        .attr("transform", "translate(150,150)")
+	      .selectAll("text")
+	        .data(words)
+	      .enter().append("text")
+	        .style("font-size", function(d) { return d.size + "px"; })
+	        .style("font-family", "Impact")
+	        .style("fill", function(d, i) { return fill(i); })
+	        .attr("text-anchor", "middle")
+	        .attr("transform", function(d) {
+	          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+	        })
+	        .text(function(d) { return d.text; });
+	  }
+	</script>
+
+</body>
+</html>

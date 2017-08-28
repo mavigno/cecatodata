@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+		<script src="d3.layout.cloud.js" charset="utf-8"></script>
+		<script type="text/javascript">
+		  var fill = d3.scale.category20();
+		  d3.csv("palavras-posts.csv",function(error,palavras) {
+		    var cloud = d3.layout.cloud()
+		        .words(palavras)
+		        .fontSize(function(d) { return scale(d.frequency); });
+		    // Use layout here…
+		  });
+
+		  function draw(words) {
+		    d3.select("body").append("svg")
+		        .attr("width", 300)
+		        .attr("height", 300)
+		      .append("g")
+		        .attr("transform", "translate(150,150)")
+		      .selectAll("text")
+		        .data(words)
+		      .enter().append("text")
+		        .style("font-size", function(d) { return d.size + "px"; })
+		        .style("font-family", "Impact")
+		        .style("fill", function(d, i) { return fill(i); })
+		        .attr("text-anchor", "middle")
+		        .attr("transform", function(d) {
+		          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+		        })
+		        .text(function(d) { return d.text; });
+		  }
+		</script>
+	</head>
+<body>
+
+</body>
+</html>

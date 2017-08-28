@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+		<title>Cecato Data</title>
+		<link href='http://fonts.googleapis.com/css?family=Lato:100,200,300,400' rel='stylesheet' type='text/css'>
+		<link href="http://fonts.googleapis.com/css?family=Londrina+Outline:400" rel="stylesheet" type="text/css">
+		<link rel="stylesheet" type="text/css" href="media.css">
+        <meta charset="utf-8">
+		<link rel="stylesheet" href="colorbox.css" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="jquery.colorbox.js"></script>
+		<script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+		<script src="logo.js" charset="utf-8"></script>
+		<script src="pageBarGraph.js" charset="utf-8"></script>
+		<script src="barClick.js" charset="utf-8"></script>
+		<script src="pagePosts.js" charset="utf-8"></script>
+		<script src="postComments.js" charset="utf-8"></script>
+		<script type="text/javascript">
+			var parameters; /* variavel global para parametros */
+			var pagesData; /* variavel global para dados sumarizados das páginas */
+			var svg; /* variável global para conter elemento "svg" */
+			var chartGroup; /* variável global para conter elementos do gráfico dentro do elemento "svg" */
+			var pageGroup;var divGroup;var divGroup2;var toggleCharts = 0;var sAttr = new Object();var bgcolor = "#18B332";var txcolor = "#E87B8F";
+			var lncolor = "#92FFA4";var color1 = "#B585FF";var color2 = "#FFCB94";var color_share = "#B3223F";var color_comme = "#FF7D9C";var color_likes = "#FFC7D4";
+			var fmt = d3.format(".3s");var toggle1stPosts = 0;
+			var divGroup3;
+			var helpGroup; var posts1stGroup;
+			function imglink(url) {
+				//cbox = "$.colorbox({href:'" + url + "' ,iframe:true, width:'80%', height:'80%'})"
+				cbox = '$.colorbox(\{href:"' + url + '" ,iframe:true, width:"80%", height:"80%", fastIframe: true, \})';
+				//console.log("cbox:"+cbox);
+				html = "<a  href='#' onclick='" + cbox + "'>" + "<img src='arrow66.svg'></img></a>";
+				//console.log("html"+html);
+				return html;
+			}
+			/* obtem o tamanho da tela */
+			var screen_size = {
+			  width: window.innerWidth || document.body.clientWidth,
+			  height: window.innerHeight || document.body.clientHeight
+			}
+			w = screen_size.width; h = screen_size.height;
+			//function getURLParameter(name) {
+			//  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+			//}
+			d3.json("update.json",function(error,json) {
+				if (error) return console.warn(error);
+				parameters = json;
+				putLogo(parameters,screen_size);
+				divGroup = d3.select("body").append("div").attr("id","posts");
+				d3.select("#posts").attr("style",function (d) {
+					return "position: absolute;" + "width: " + w*0.4 + "px;left: " + w*0.3 + "px;right: " + w*0.2 + "px;top: " + h*0.1 + "px;" + ";color: black;"
+				});
+				divGroup2 = d3.select("body").append("div").attr("id","comments");
+				d3.select("#comments").attr("style",function (d) {
+					return "position: absolute;" + "width: " + w*0.5 + "px;left: " + w*0.1 + "px;right: " + w*0.2 + "px;top: " + h*0.1 + "px;" + ";color: black;"
+				});
+				divGroup3 = d3.select("body").append("div").attr("id","commenttitle")
+					.append("p").attr("class","logo").html("#1 de cada página");
+				d3.select("#commenttitle").attr("style",function (d) {
+					return "position: absolute;" + "width: " + w + "px;left: " + 10 + "px;right: " + 10 + "px;top: " + 10 + "px;" + ";color: black;"
+				});
+				d3.select("#commenttitle").style("visibility","hidden");
+				pageBarGraph(parameters,screen_size);
+				
+			});
+		</script>
+    </head>
+    <body>
+    </body>
+</html>

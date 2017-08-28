@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+		<title>Cecato Data</title>
+		<link href='http://fonts.googleapis.com/css?family=Lato:100,200,300,400' rel='stylesheet' type='text/css'>
+		<link href="http://fonts.googleapis.com/css?family=Londrina+Outline:400" rel="stylesheet" type="text/css">
+		<link rel="stylesheet" type="text/css" href="media.css">
+        <meta charset="utf-8">
+		<link rel="stylesheet" href="colorbox.css" />
+		<script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+		<script src="logo.js" charset="utf-8"></script>
+		<script type="text/javascript">
+			var screen_size = {
+			  width: window.innerWidth || document.body.clientWidth,
+			  height: window.innerHeight || document.body.clientHeight
+			}
+			var postsData; var divWords;
+			w = screen_size.width; h = screen_size.height;
+			var postHeigths = []; var parameters;
+			
+			
+			d3.csv("candidatos-sumario.csv",function(error,csv) {
+				if (error) return console.warn(error);
+				
+				d3.json("update.json",function(error,json) {
+					if (error) return console.warn(error);
+					parameters = json;
+					putLogo(parameters,screen_size);
+				});
+				
+				postsData = csv.slice(0,100);
+				var divGroup = d3.select("body").selectAll("div").data([1]).enter().append("div").attr("style",function (d) {
+					return "position: absolute;" + "width: " + w*0.4 + "px;left: " + w*0.2 + "px;right: " + w*0.2 + "px;top: " + h*0.1 + "px;" + ";color: black;"
+				});
+				
+				divGroup.selectAll("p").data(postsData).enter().append("p").attr("id","post")
+					.style("width","10px")
+					.html(function(d,i) {
+						htmlpost = "";
+						htmlpost = htmlpost + "<b>"+ d.from_name + " - </b>" +  d.likes_count + "<i>likes, "  + 
+						d.comments_count + " comments, " + d.shares_count + " shares" +"</i>";
+						htmlpost = htmlpost + "<br>" + d.created_date + " - "
+						if ((d.url == "NA") | (d.url == null) ) { url = d.link } else { url = d.url } 
+						htmlpost = htmlpost + '<a href="' + url + '" target="_blank">'+'<img src="arrow66.svg"></img>'+'</a> ';
+						var link = '<br><p class="bordered-link" href="' + d.link + '">';
+						if (d.message == "NA") {
+							htmlpost = htmlpost + link + d.from_name + ": " + d.link + "<br><i>(esse post não tem um texto)</i>";
+						} else {
+							htmlpost = htmlpost + link + d.message;
+						}
+						htmlpost = htmlpost + '</p>';
+						return htmlpost;
+					})
+					.transition().delay(function(d,i) { return i * 200}).duration(1000)
+					.style("width",screen_size.width*0.4 + "px");
+					
+					d3.csv("words.csv",function(error,words) {
+						data = words.reverse();
+						var nodes = [];
+						var counter = 0;
+						divWords = d3.select("body").append("div")
+							.style("position","fixed")
+							.style("width",w*0.6 + "px")
+							.style("left",w*0.6 + "px")
+							.style("right",w*0.2 + "px")
+							.style("top",h*0.01 + "px")
+							.style("bottom",h*0.05 + "px");
+						svg = divWords.append("svg")
+							//.style("background","#18B332")
+		                    //.attr("height",h*0.5 + "px")
+		                    //.attr("width","100%");
+		                    .attr("height","100%")
+		                    .attr("width","100%")
+							.attr("viewbox", "0 0 "+w+" "+h);
+						console.log(svg.attr("width"));
+					    var force = d3.layout.force()
+		                    .nodes(nodes)
+		                    .links([])
+		                    .size([w*0.3,h*0.5])
+							.charge(function(d) {
+								console.log(d.charge);
+								return d.charge;
+							})
+							.chargeDistance([1000])
+							.gravity(0.1)
+							.friction(0.7)
+							.on("tick", function(e) {
+								svg.selectAll("text").attr("transform", function(d) {
+									return "translate(" + d.x + "," + d.y + ") rotate(" + d.rotate + ")";
+								}).call(force.drag);
+							});
+						var timer = setInterval(function() {
+							if (nodes.length > data.length-1) { clearInterval(timer); return; }
+							var item = data[counter];
+							nodes.push({
+								text: item.text, 
+								fontsize: item.fontsize, 
+								cor: item.cor, 
+								charge: item.charge, 
+								gravity: item.gravity,
+								rotate: Math.floor(Math.random()) * 90
+							});
+							force.start();
+						    var texts = svg.selectAll("text")
+			                    .data(nodes)
+			                    .enter()
+			                    .append("text")
+			 					.style("cursor","pointer")
+			                    .attr("fill", function(d) {
+			 						return d.cor;
+			 					})
+			 					.attr("opacity",0.8)
+			                    .attr("font-family", "Arial")
+			 					.attr("stroke",function(d) {
+			 						return d.cor;
+			 					})
+			                    .attr("font-size", function(d){
+			 						size = d.fontsize + "px";
+			 						return size;
+			                    })
+								.attr("transform",function(d) {
+									rotate = Math.floor(Math.random() * 90);
+									return "rotate(" + rotate + ")";
+								})
+								.on("mouseover",function(d) {
+									d3.select(this).attr("font-size",50);
+								})
+								.on("mouseout",function(d) {
+									d3.select(this).attr("font-size",d.fontsize);
+								})
+			                    .text(function(d) { 
+			 						return d.text; 
+			 					});
+								
+							counter++;
+						},200);
+					});
+					    
+			});
+			
+			
+			//	.attr("style",function (d) {
+			//		return "position: fixed;" + "width: " + w*0.6 + "px;left: " + w*0.6 + "px;right: " + w*0.2 + "px;top: " + h*0.1 + "px;" + ";color: black;"
+			//	});
+		</script>
+    </head>
+    <body>
+    </body>
+</html>
